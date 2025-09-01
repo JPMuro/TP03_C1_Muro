@@ -3,12 +3,11 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class Ball : MonoBehaviour
 {
-    [Header("Velocidad")]
     public float speed = 10f;
-    public float speedIncrementOnHit = 0.5f;
-
-    [Header("Rango de ángulo inicial")]
-    [Range(10f, 70f)] public float minLaunchAngle = 20f;
+    public float speedIncrement = 0.5f;
+    public float maxSpeed = 25f;
+    [Range(5f, 44f)] public float minLaunchAngle = 20f;
+    [Range(10f, 75f)] public float maxBounceAngle = 60f;
 
     Rigidbody2D rb;
     Vector2 startPos;
@@ -18,49 +17,65 @@ public class Ball : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         startPos = transform.position;
         rb.gravityScale = 0f;
+        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
+        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
     }
 
-    void Start()
+    void Start() => Launch();
+
+void FixedUpdate()
+{
+    Vector2 vel = rb.velocity;
+
+    // Si la velocidad es casi cero, aplica un impulso mínimo en una dirección aleatoria
+    if (vel.sqrMagnitude < 0.01f)
     {
-        LaunchRandom();
+        float angle = Random.Range(minLaunchAngle, 90f - minLaunchAngle) * Mathf.Deg2Rad;
+        float dirX = Random.value < 0.5f ? -1f : 1f;
+        Vector2 nudge = new Vector2(dirX * Mathf.Cos(angle), Mathf.Sin(angle)).normalized * 0.5f;
+        rb.velocity = nudge;
+        return;
     }
 
-    void FixedUpdate()
-    {
-        rb.velocity = rb.velocity.normalized * speed;
-    }
+    // Si la componente X es muy baja, aplica un pequeño empujón horizontal
+    if (Mathf.Abs(vel.x) < 0.05f)
+        vel.x = 0.2f * Mathf.Sign(vel.x == 0f ? Random.value < 0.5f ? 1f : -1f : vel.x);
 
-    void LaunchRandom()
+    // Si la componente Y es muy baja, aplica un pequeño empujón vertical
+    if (Mathf.Abs(vel.y) < 0.05f)
+        vel.y = 0.2f * Mathf.Sign(vel.y == 0f ? Random.value < 0.5f ? 1f : -1f : vel.y);
+
+    // Normaliza y aplica la velocidad deseada
+    rb.velocity = vel.normalized * speed;
+}
+
+    void Launch()
     {
         transform.position = startPos;
-        float dirX = Random.value < 0.5f ? -1f : 1f;
         float angle = Random.Range(minLaunchAngle, 90f - minLaunchAngle) * Mathf.Deg2Rad;
+        float dirX = Random.value < 0.5f ? -1f : 1f;
         Vector2 dir = new Vector2(dirX * Mathf.Cos(angle), Mathf.Sin(angle)).normalized;
         rb.velocity = dir * speed;
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        if (col.collider.GetComponent<Movement>() != null)
-        {
-            float paddleY = col.transform.position.y;
-            float contactY = rb.position.y;
-            float halfHeight = col.collider.bounds.size.y * 0.5f;
-            float offset = Mathf.Clamp((contactY - paddleY) / halfHeight, -1f, 1f);
+        var paddle = col.collider.GetComponent<Movement>() ?? col.collider.GetComponentInParent<Movement>();
+        if (paddle == null) return;
 
-            Vector2 dir = rb.velocity.normalized;
-            dir.x = -dir.x;       // refleja en horizontal
-            dir.y = offset;       // cambia el ángulo según dónde pegó
-            dir = dir.normalized;
+        var contact = col.GetContact(0);
+        float offset = Mathf.Clamp((contact.point.y - col.transform.position.y) / (col.collider.bounds.size.y * 0.5f), -1f, 1f);
+        float angle = offset * maxBounceAngle * Mathf.Deg2Rad;
+        bool left = col.transform.position.x < transform.position.x;
+        Vector2 dir = new Vector2(left ? Mathf.Cos(angle) : -Mathf.Cos(angle), Mathf.Sin(angle)).normalized;
 
-            speed += speedIncrementOnHit; // acelera un poco en cada golpe
-            rb.velocity = dir * speed;
-        }
+        speed = Mathf.Min(speed + speedIncrement, maxSpeed);
+        rb.velocity = dir * speed;
     }
 
     public void ResetAndLaunch()
     {
         speed = Mathf.Max(speed, 8f);
-        LaunchRandom();
+        Launch();
     }
 }
