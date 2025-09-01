@@ -5,6 +5,7 @@ public class PaddleBounds : MonoBehaviour
     public float minY = -3.8f;
     public float maxY =  3.8f;
     public float fixedX = -8f;
+    public float height = 1;
 
     void LateUpdate()
     {
