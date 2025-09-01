@@ -23,8 +23,6 @@ public class Movement : MonoBehaviour
     void Update()
     {
         PlayerMovement();
-        Rotation();
-        NewColor();
     }
 
     void PlayerMovement()
@@ -72,31 +70,6 @@ public class Movement : MonoBehaviour
             default:
                 Debug.LogWarning("Esquema de control no asignado. No hay movimiento.");
                 break;
-        }
-    }
-
-    void Rotation()
-    {
-        if (Input.GetKeyDown(KeyCode.Q))
-        {
-            transform.Rotate(0, 0, rotationStep);
-        }
-
-        if (Input.GetKeyDown(KeyCode.E))
-        {
-            transform.Rotate(0, 0, -rotationStep);
-        }
-    }
-
-    void NewColor()
-    {
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            Color color = Color.white;
-            color.r = Random.Range(0, 1f);
-            color.g = Random.Range(0, 1f);
-            color.b = Random.Range(0, 1f);
-            sr.color = color;
         }
     }
 }
