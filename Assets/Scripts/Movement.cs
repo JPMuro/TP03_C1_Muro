@@ -11,7 +11,6 @@ public class Movement : MonoBehaviour
 
     [Header("Movimiento")]
     public float speed = 5f;
-    public float rotationStep = 10f;
 
     SpriteRenderer sr;
 
@@ -34,17 +33,9 @@ public class Movement : MonoBehaviour
                 {
                     transform.Translate(0, 1f * speed * Time.deltaTime, 0);
                 }
-                if (Input.GetKey(KeyCode.A))
-                {
-                    transform.Translate(-1f * speed * Time.deltaTime, 0, 0);
-                }
                 if (Input.GetKey(KeyCode.S))
                 {
                     transform.Translate(0, -1f * speed * Time.deltaTime, 0);
-                }
-                if (Input.GetKey(KeyCode.D))
-                {
-                    transform.Translate(1f * speed * Time.deltaTime, 0, 0);
                 }
                 break;
 
@@ -53,17 +44,9 @@ public class Movement : MonoBehaviour
                 {
                     transform.Translate(0, 1f * speed * Time.deltaTime, 0);
                 }
-                if (Input.GetKey(KeyCode.LeftArrow))
-                {
-                    transform.Translate(-1f * speed * Time.deltaTime, 0, 0);
-                }
                 if (Input.GetKey(KeyCode.DownArrow))
                 {
                     transform.Translate(0, -1f * speed * Time.deltaTime, 0);
-                }
-                if (Input.GetKey(KeyCode.RightArrow))
-                {
-                    transform.Translate(1f * speed * Time.deltaTime, 0, 0);
                 }
                 break;
 
