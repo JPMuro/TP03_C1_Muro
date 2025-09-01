@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 0fc3b99fbdda3cf458404500a215739f
+guid: cff6bd3197e2d6d498b31bc24efad147
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7896879507418422366
-    second: Player1_0
+      213: 4859619994926244752
+    second: paddle_left_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -100,13 +100,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Player1_0
+      name: paddle_left_0
       rect:
         serializedVersion: 2
         x: 0
         y: 0
-        width: 527
-        height: 1245
+        width: 20
+        height: 120
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -114,8 +114,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e5c9cb1921a579d60800000000000000
-      internalID: 7896879507418422366
+      spriteID: 093e6f453a6d07340800000000000000
+      internalID: 4859619994926244752
       vertices: []
       indices: 
       edges: []
@@ -131,7 +131,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
-      Player1_0: 7896879507418422366
+      paddle_left_0: 4859619994926244752
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
