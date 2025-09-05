@@ -1,34 +1,33 @@
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class GameManager : MonoBehaviour
 {
-    public Ball ball;
+    public Text scoreText;
+    private int scoreP1 = 0, scoreP2 = 0;
 
-    [Header("UI")]
-    public TMP_Text leftScoreText;
-    public TMP_Text rightScoreText;
+    public Transform ball;
 
-    int leftScore = 0;
-    int rightScore = 0;
-
-    public void GoalLeft()
+    void Update()
     {
-        rightScore++;
-        UpdateUI();
-        ball.ResetAndLaunch();
+        if (ball.position.x < -9f)
+        {
+            scoreP2++;
+            ResetBall();
+        }
+        else if (ball.position.x > 9f)
+        {
+            scoreP1++;
+            ResetBall();
+        }
+
+        scoreText.text = scoreP1 + " : " + scoreP2;
     }
 
-    public void GoalRight()
+    void ResetBall()
     {
-        leftScore++;
-        UpdateUI();
-        ball.ResetAndLaunch();
-    }
-
-    void UpdateUI()
-    {
-        if (leftScoreText) leftScoreText.text = leftScore.ToString();
-        if (rightScoreText) rightScoreText.text = rightScore.ToString();
+        ball.position = Vector2.zero;
+        ball.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+        ball.GetComponent<Ball>().SendMessage("Launch");
     }
 }

@@ -4,76 +4,60 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     [Header("Velocidad")]
-    public float speed = 10f;
-    public float speedIncrement = 0.5f;
-    public float maxSpeed = 25f;
+    public float initialSpeed = 8f;
+    public float speedIncrement = 0.2f;
+    public float maxSpeed = 15f;
 
-    [Header("Ángulos")]
-    [Range(5f, 44f)] public float minLaunchAngle = 20f;
-    [Range(10f, 75f)] public float maxBounceAngle = 60f;
+    [Header("Ángulo inicial")]
+    [Range(0.3f, 0.7f)] public float minYDir = 0.3f;
 
-    Rigidbody2D rb;
-    Vector2 startPos;
+    private Rigidbody2D rb;
+    private float currentSpeed;
 
-    void Awake()
+    void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        startPos = transform.position;
-        rb.gravityScale = 0f;
-        rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
-        rb.interpolation = RigidbodyInterpolation2D.Interpolate;
+        currentSpeed = initialSpeed;
+        Launch();
     }
-
-    void Start() => Launch();
 
     void Launch()
     {
-        transform.position = startPos;
-
-        float angle = Random.Range(minLaunchAngle, 90f - minLaunchAngle) * Mathf.Deg2Rad;
-        float dirX = Random.value < 0.5f ? -1f : 1f;
-        Vector2 dir = new Vector2(dirX * Mathf.Cos(angle), Mathf.Sin(angle)).normalized;
-
-        rb.velocity = dir * speed;
+        float x = Random.value < 0.5f ? -1f : 1f;
+        float y = Random.Range(minYDir, 1f) * (Random.value < 0.5f ? -1f : 1f);
+        Vector2 dir = new Vector2(x, y).normalized;
+        rb.velocity = dir * currentSpeed;
     }
 
     void OnCollisionEnter2D(Collision2D col)
     {
-        // === Rebotes con paredes ===
-        if (col.collider.CompareTag("WallTop") || col.collider.CompareTag("WallBottom"))
+        if (col.gameObject.CompareTag("Player"))
         {
-            rb.velocity = new Vector2(rb.velocity.x, -rb.velocity.y).normalized * speed;
-            return;
-        }
+            // Calcula el offset vertical relativo a la paleta
+            float paddleY = col.transform.position.y;
+            float contactY = transform.position.y;
+            float halfHeight = col.collider.bounds.size.y / 2f;
+            float offset = (contactY - paddleY) / halfHeight;
 
-        if (col.collider.CompareTag("WallLeft") || col.collider.CompareTag("WallRight"))
+            // Cambia la dirección según el offset
+            Vector2 dir = new Vector2(-rb.velocity.x, offset).normalized;
+
+            // Incrementa velocidad pero respeta el límite
+            currentSpeed = Mathf.Min(currentSpeed + speedIncrement, maxSpeed);
+            rb.velocity = dir * currentSpeed;
+        }
+        else
         {
-            rb.velocity = new Vector2(-rb.velocity.x, rb.velocity.y).normalized * speed;
-            return;
+            // Rebote normal para paredes
+            rb.velocity = rb.velocity.normalized * currentSpeed;
         }
-
-        // === Rebote con Paddle ===
-        var paddle = col.collider.GetComponent<Movement>() ?? col.collider.GetComponentInParent<Movement>();
-        if (paddle == null) return;
-
-        var contact = col.GetContact(0);
-        float offset = Mathf.Clamp(
-            (contact.point.y - col.transform.position.y) / (col.collider.bounds.size.y * 0.5f),
-            -1f, 1f
-        );
-
-        float angle = offset * maxBounceAngle * Mathf.Deg2Rad;
-        bool left = col.transform.position.x < transform.position.x;
-
-        Vector2 dir = new Vector2(left ? Mathf.Cos(angle) : -Mathf.Cos(angle), Mathf.Sin(angle)).normalized;
-
-        speed = Mathf.Min(speed + speedIncrement, maxSpeed);
-        rb.velocity = dir * speed;
     }
 
-    public void ResetAndLaunch()
+    // Opcional: reiniciar la pelota
+    public void ResetBall()
     {
-        speed = 10f;
+        currentSpeed = initialSpeed;
+        transform.position = Vector2.zero;
         Launch();
     }
 }
